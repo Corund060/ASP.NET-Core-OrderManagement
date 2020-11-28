@@ -1,0 +1,195 @@
+﻿@model OrderManagement.Models.Basket
+@using Microsoft.AspNetCore.Http
+@{
+    ViewBag.Title = "Shopping basket";
+    var user = "anonymous";
+    if (Context.Session.GetString("currentUser") != null)
+    {
+        user = Context.Session.GetString("currentUser").ToString();
+    }
+    double fullSum = 0;
+
+    var basketId = Context.Session.GetString("SessionBasketId").ToString();
+
+}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<h2>Your shopping basket</h2></br>
+<h3>Items</h3>
+
+@* Button for clearing Basket*@
+@*=================================================================================================================================*@
+<form action="/Basket/ClearBasket">
+    <input type="submit" value="Empty basket" class="btn btn-primary" />
+</form>
+<br>
+
+@*Table with Basket Items*@
+<table class="table" cellpadding="0" cellspacing="0">
+    <tr>
+        <th>Name</th>
+        <th>Price, Eur</th>
+        <th>Discount, %</th>
+        <th>Quantity</th>
+        <th>Sum, Eur</th>
+    </tr>
+    @foreach (var item in Model.BasketItems)
+    {
+        var sum = item.BasketItemQuantity * item.BasketItemPrice - (item.BasketItemQuantity * item.BasketItemPrice) * item.BasketItemDiscount / 100;
+        fullSum += sum;
+        <tr>
+            <td>@item.BasketItemName</td>
+            <td>@item.BasketItemPrice</td>
+            <td>@item.BasketItemDiscount</td>
+            <td>
+                <div style="border:solid; border-width: thin; width:fit-content">
+                    <span style="margin-right:10px; margin-left:5px" class="glyphicon glyphicon-minus" onclick="SubstractItemQuant(@item.BasketItemId, @item.BasketItemQuantity)"></span>
+                    @item.BasketItemQuantity
+                    <span style="margin-left:10px; margin-right:5px" class="glyphicon glyphicon-plus" onclick="AddItemQuant(@item.BasketItemId)"></span>
+                </div>
+            </td>
+            <td>@String.Format("{0:0.00}", sum)</td>
+        </tr>
+    }
+    <tr class="borderless">
+        <td class="borderless"></td>
+        <td class="borderless"></td>
+        <td class="borderless"></td>
+        <td class="borderless"></td>
+        <td class="borderless">
+            <span>Enter 007 for 5% discount</span>
+            <br />
+            <input type="text" name="orderDisc" onchange="CheckDiscount(this.value)" />
+        </td>
+    </tr>
+    <tr class="borderless">
+        <td class="borderless"></td>
+        <td class="borderless"></td>
+        <td class="borderless"></td>
+        <td class="borderless"></td>
+        <td class="borderless"><b>Total: <span id="totalAm">@String.Format("{0:0.00}", fullSum)</span>  Eur</b></td>
+    </tr>
+</table>
+
+@*Customer information supply selection*@
+@*=================================================================================================================================*@
+<h6>Select customer:</h6>
+<input type="radio" id="currentUser" name="customer" value="currentUser" onclick="Customer(this.value)" checked>
+<label for="currentUser">Current user: <b>@user</b></label>
+<br>
+<input type="radio" id="fromList" name="customer" value="fromList" onclick="Customer(this.value)">
+<label for="fromList">Choose from list</label>
+<select name="customers" id="customersFromDb" style="display:none" onchange="CustomerName(this.value)">
+    @foreach (var item in ViewBag.Users)
+    {
+        <option value="@item.LoginName">@item.LoginName ( @item.FirstName @item.LastName )</option>
+    }
+</select>
+<br>
+<input type="radio" id="enterNew" name="customer" value="enterNew" onclick="Customer(this.value)">
+<label for="enterNew">Enter new customer</label>
+<form action="/Basket/SaveBasket">
+    <div id="custDiv" class="custInput" style="display:none">
+        <label for="loginName">Login name:</label>
+        <input type="text" id="loginName" name="loginName" value="@user" />
+        <br />
+        <label for="pass">&nbsp;&nbsp;&nbsp;Password:</label>
+        <input class="custInput" type="text" id="pass" name="userPass" />
+        <br />
+        <label for="firstName">&nbsp;&nbsp;First name:</label>
+        <input class="custInput" type="text" id="firstName" name="firstName" />
+        <label for="lastName">Last name:</label>
+        <input class="custInput" type="text" id="lastName" name="lastName" />
+        <br />
+        <label for="adress">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adress:</label>
+        <input class="custInput" type="text" id="adress" name="adress" />
+    </div>
+    <br />
+    <input type="hidden" id="isNew" name="isNew" value="false" />
+    <input type="hidden" id="orderDiscount" name="orderDiscount" value="0" />
+    <input type="submit" style="margin-bottom:10%" value="Checkout" class="btn btn-primary" />
+</form>
+<br>
+
+@*JS section*@
+@*=================================================================================================================================*@
+
+<script type="text/javascript">
+
+function Customer(clicked)
+{
+    switch (clicked)
+    {
+        case 'currentUser':
+            document.getElementById("isNew").value = "false";
+            document.getElementById("custDiv").style.display = "none";
+            document.getElementById("customersFromDb").style.display = "none";
+            document.getElementById("loginName").value="@user";
+            break;
+        case 'fromList':
+            document.getElementById("isNew").value = "false";
+            document.getElementById("custDiv").style.display = "none";
+            document.getElementById("customersFromDb").style.display = "block";
+            break;
+        case 'enterNew':
+            document.getElementById("isNew").value = "true";
+            document.getElementById("loginName").value = "";
+            document.getElementById("custDiv").style.display = "block";
+            document.getElementById("customersFromDb").style.display = "none";
+            break;
+    }
+}
+function CustomerName(name)
+{
+    document.getElementById("loginName").value = name;
+}
+
+function AddItemQuant(clicked_id) {
+    $.ajax({
+        url: '/Basket/AddItem',
+        data: { id: clicked_id },
+        success: function () {
+            window.location.href = "/Basket";
+        }
+    });
+}
+
+function SubstractItemQuant(clicked_id, quantity) {
+    if (quantity == 1) {
+        if (confirm("Delete this item from basket ?")) {
+            $.ajax({
+                url: '/Basket/DeleteItem',
+                data: { id: clicked_id },
+                success: function () {
+                    window.location.href = "/Basket";
+                }
+            });
+        }
+    }
+    else {
+        $.ajax({
+            url: '/Basket/SubstractItem',
+            data: { id: clicked_id },
+            success: function () {
+                window.location.href = "/Basket";
+            }
+        });
+    }
+}
+
+function CheckDiscount(value)
+{
+    if (value == "007") {
+        document.getElementById("totalAm").textContent =@String.Format("{0:0.00}", fullSum * 0.95);
+        document.getElementById("orderDiscount").value = "5";
+    }
+    else
+    {
+        document.getElementById("totalAm").textContent =@String.Format("{0:0.00}", fullSum );
+        document.getElementById("orderDiscount").value = "0";
+    }
+}
+</script>

@@ -1,0 +1,35 @@
+﻿
+@{
+    ViewBag.Title = "Login";
+    var errorMsg = "";
+    if (ViewData["errorMsg"] != null)
+    {
+        errorMsg = ViewData["errorMsg"].ToString();
+    }
+
+}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<h2>Login</h2>
+
+@*Login form *@
+@*=================================================================================================================================*@
+<form autocomplete="off" action="/User/Verify" method="post">
+
+    <div style="margin-bottom:20pt; display:block">
+        <label style="color:red; font-size:10pt">@errorMsg</label>
+    </div>
+    <label for="loginName">Login name:</label>
+    <input type="text" name="loginName">
+    <br />
+    <br />
+    <label for="password">&nbsp;&nbsp;&nbsp;Password:</label>
+    <input type="password" name="password">
+    <br />
+    <a href="/User/Register" style=" margin-left:220px">Register</a>
+    <br />
+    <button type="submit" class="btn btn-primary" style="margin-left: 215px; margin-top:30px">Login</button>
+</form>

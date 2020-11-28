@@ -1,0 +1,52 @@
+﻿
+@{
+    ViewBag.Title = "Register";
+    var errorMsg = "";
+    if (ViewData["errorMsg"] != null)
+    {
+        errorMsg = ViewData["errorMsg"].ToString();
+    }
+
+}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<h2>Register</h2>
+
+@*Registering form*@
+@*=================================================================================================================================*@
+
+<form autocomplete="off" action="/User/VerifyRegister" method="post">
+
+    <div style="margin-bottom:20pt; display:block">
+        <label style="color:red; font-size:13pt">@errorMsg</label>
+    </div>
+    <label for="loginName">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Login name:</label>
+    <input type="text" name="loginName">
+    <br />
+    <br />
+    <label for="password">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*Password:</label>
+    <input type="password" name="password">
+    <br />
+    <br />
+    <label for="password2">*Repeat Password:</label>
+    <input type="password" name="password2">
+    <br />
+    <br />
+    <label for="firstName">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;First name:</label>
+    <input type="text" name="firstName">
+    <br />
+    <br />
+    <label for="lastName">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Last name:</label>
+    <input type="text" name="lastName">
+    <br />
+    <br />
+    <label for="adress">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adress:</label>
+    <input type="text" name="adress">
+    <br />
+    <span style="margin-left: 210px">* - required fields</span>
+    <br />
+    <button type="submit" class="btn btn-primary" style="margin-left: 240px; margin-top:30px">Register</button>
+</form>

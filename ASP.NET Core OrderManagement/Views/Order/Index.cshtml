@@ -1,0 +1,86 @@
+﻿@model List<OrderManagement.Models.Order>
+@{
+    ViewBag.Title = "Orders";
+}
+
+<h3>Orders</h3>
+
+@* Filter by Status dropbox*@
+@*=================================================================================================================================*@
+
+<form name="filterStatusForm" action="/Order/FilterStatus">
+    <label for="statusFilter">Filter by Order Status:</label>
+    <select name="statusFilter" onchange="this.form.submit()">
+        <option value="@ViewData["filter"]">@ViewData["filter"]</option>
+        <option value="All">All</option>
+        <option value="Processed">Processed</option>
+        <option value="Shipped">Shipped</option>
+        <option value="Completed">Completed</option>
+        <option value="Paid">Paid</option>
+        <option value="Closed">Closed</option>
+        <option value="Ordered">Ordered</option>
+    </select>
+</form>
+
+@*Table for List of Orders *@
+@*=================================================================================================================================*@
+
+<table class="table" cellpadding="0" cellspacing="0" style="border:double">
+    <tr>
+        <th>Date</th>
+        <th>Provider</th>
+        <th>Customer</th>
+        <th>Total amount, Eur</th>
+        <th>Status</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.OrderDate</td>
+            <td>
+                @item.OrderProvider.ProviderName<br>
+                @item.OrderProvider.ProviderVatNumber<br>
+                @item.OrderProvider.ProviderAdress
+            </td>
+            <td>
+                @item.OrderCustomer.LoginName<br>
+                @item.OrderCustomer.FirstName @item.OrderCustomer.LastName<br>
+                @item.OrderCustomer.Adress
+            </td>
+            <td>@String.Format("{0:0.00}", item.OrderTotalAmount)</td>
+            <td>
+                <select name="orderStatus" onchange="ChangeOrderStatus(@item.Id, this.value)">
+                    <option value="@item.OrderStatus" selected>@item.OrderStatus</option>
+                    <option value="Processed">Processed</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Closed">Closed</option>
+                    <option value="Ordered">Ordered</option>
+                </select>
+            </td>
+        </tr>
+    }
+</table>
+
+@*JS section*@
+@*=================================================================================================================================*@
+
+<script type="text/javascript">
+    function ChangeOrderStatus(clicked_id, status) {
+        $.ajax({
+            url: '/Order/ChangeStatus',
+            data: { id: clicked_id, status: status },
+            success: function () {
+                window.location.href = "/Order";
+            }
+        });
+    }
+
+    function FilterOrderStatus(status) {
+        $.ajax({
+            url: '/Order/FilterStatus',
+            data: { status: status }
+        });
+    }
+</script>

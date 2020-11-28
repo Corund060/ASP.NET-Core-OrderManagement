@@ -1,0 +1,100 @@
+﻿
+@model List<OrderManagement.Models.Item>
+@{
+    ViewBag.Title = "Items";
+}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<h3>Items</h3>
+
+@*Table of Items*@
+@*=================================================================================================================================*@
+<table class="table" cellpadding="0" cellspacing="0" style="border:double">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Price, Eur</th>
+        <th>Discount, %</th>
+        <th></th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td><input class="borderless" id="name:@item.Id" type="text" value="@item.Name" onfocusout="UpdateField(this.id)" /></td>
+            <td><input class="borderless" id="price:@item.Id" type="text" value="@String.Format("{0:0.00}", item.Price)" onfocusout="UpdateField(this.id)" /></td>
+            <td><input class="borderless" id="discount:@item.Id" type="text" value="@String.Format("{0:0.00}", item.Discount)" onfocusout="UpdateField(this.id)" /></td>
+            <td>
+                <a href="#" data-toggle="tooltip" title="Delete item" onclick="Delete(@item.Id)">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+                <a style="margin-left:10px" data-toggle="tooltip" title="Add to basket" href="#" onclick="AddToCart(@item.Id)">
+                    <span class="glyphicon glyphicon-shopping-cart"></span>
+                </a>
+            </td>
+        </tr>
+
+    }
+</table>
+
+@*Adding new Item*@
+@*=================================================================================================================================*@
+<h3>Add item:</h3>
+<form asp-controller="Item" asp-action="AddItem">
+    <table class="table" cellpadding="0" cellspacing="0">
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Discount</th>
+            <th></th>
+        </tr>
+        <tr>
+            <td><input type="text" id="name" name="name"></td>
+            <td><input type="text" id="price" name="price"></td>
+            <td><input type="text" id="discount" name="discount"></td>
+            <td><input type="submit" value="Add Item" class="btn btn-primary" /></td>
+        </tr>
+    </table>
+
+</form>
+
+@*JS section*@
+@*=================================================================================================================================*@
+<script type="text/javascript">
+    function Delete(clicked_id) {
+        if (confirm("Delete item ID=" + clicked_id)) {
+            $.ajax({
+                url: '/Item/DeleteItem',
+                data: { id: clicked_id },
+                success: function () {
+                    window.location.href = "/Item";
+                }
+            });
+        }
+    }
+
+    function UpdateField(clicked_id) {
+        var fieldValue = document.getElementById(clicked_id).value;
+        $.ajax({
+            url: '/Item/UpdateItem',
+            data: { id: clicked_id, value: fieldValue },
+            success: function () {
+                window.location.href = "/Item";
+            }
+        });
+    }
+
+    function AddToCart(clicked_id) {
+        $.ajax({
+            url: '/Basket/AddItem',
+            data: { id: clicked_id },
+            success: function () {
+                window.location.href = "/Item";
+            }
+        });
+    }
+
+</script>
