@@ -1,5 +1,7 @@
 # ASP.NET-Core-OrderManagement
 
+http://order-management-test.azurewebsites.net/
+
 Order management program:
 1. Login/Sign up functionality
 2. List of Items (whole CRUD).
